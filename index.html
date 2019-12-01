@@ -234,6 +234,9 @@
             Agile Development &amp; Scrum</li>
         </ul>
       </div>
+      <div>
+          <svg width="300" height="220"></svg>
+        </div>
     </section>
 
     <hr class="m-0">
@@ -273,8 +276,76 @@
     </section>
 
   </div>
-
+  
   <!-- Bootstrap core JavaScript -->
+  <script src="vendor/d3.v4.js"></script>
+  <script>
+    var svg = d3.select("svg"),
+      width = svg.attr("width"),
+      height = svg.attr("height"),
+      radius = Math.min(width, height) / 2;
+
+    var g = svg.append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var color = d3.scaleOrdinal(['#4daf4a', '#377eb8', '#ff7f00', '#984ea3', '#e41a1c']);
+    var pie = d3.pie().value(function (d) {
+      return d.percent;
+    });
+
+    var path = d3.arc()
+      .outerRadius(radius - 10)
+      .innerRadius(0);
+
+    var label = d3.arc()
+      .outerRadius(radius)
+      .innerRadius(radius - 80);
+
+    var tooltip_div = d3.select("body")
+      .append("div")
+      .style("position", "absolute")
+      .style("height", "auto")
+      .style("width", "auto")
+      .style("visibility", "hidden")
+      .style("font-family", "sans-serif")
+      .style("background-color", "black")
+      .style("color", "#fff")
+      .style("opacity","0.8")
+      .style("border-radius", "8px")
+      .style("border", "0px")
+      .style("text-align", "center");
+
+      
+    d3.csv("data/skills.csv", function (error, data) {
+      if (error) {
+        throw error;
+      }
+      var arc = g.selectAll(".arc")
+        .data(pie(data))
+        .enter().append("g")
+        .attr("class", "arc")
+        .on("mouseover", function (d, i) {
+          tooltip_div.html("<strong>" + d.data.interest + "</strong>");
+          tooltip_div.style("visibility", "visible");
+          return tooltip_div;
+        })
+        .on("mousemove", function () { return tooltip_div.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px"); })
+        .on("mouseout", function () { return tooltip_div.style("visibility", "hidden"); });
+
+      arc.append("path")
+        .attr("d", path)
+        .attr("fill", function (d) { return color(d.data.percent); });
+
+      console.log(arc)
+
+    });
+
+    svg.append("g")
+      .attr("transform", "translate(" + (width / 2 - 60) + "," + 220 + ")")
+      .append("text")
+      .text("Areas of Interest")
+      .attr("class", "title")
+  </script>
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
